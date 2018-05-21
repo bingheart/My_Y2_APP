@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.UserMapper">
+    
+    <select id="userLogin" resultType="DevUser">
+    	SELECT * FROM `dev_user`  WHERE `devCode` =#{userName} AND `devPassword` =#{userPassword}
+    </select>
+    
+    <select id="appCategoryList" resultType="AppCategory">
+    		
+    			SELECT *  FROM `app_category` WHERE `parentId`=0
+    </select>
+    
+    <select id="dataDictionaryList" resultType="DataDictionary">
+    
+    			SELECT  * FROM `data_dictionary`
+    
+    </select>
+    
+    
+    <select id="appInfoList" resultMap="appInfomap">
+    
+    		SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台'  AND `devId`=#{devId}	  LIMIT #{currentPageNo},5	
+    
+    </select>
+    
+    <resultMap type="AppInfo" id="appInfomap">
+    
+    		<result property="flatformName" column="valueName" />
+    
+    </resultMap>
+    
+    <select id="queryCategoryLevel2" resultType="AppCategory">
+    
+    		SELECT * FROM `app_category` WHERE `parentId`=1
+    
+    </select>
+    
+     <select id="queryCategoryLevel3" resultType="AppCategory">
+    
+    		SELECT * FROM `app_category` WHERE `parentId`= 2
+    
+   	 </select>
+    
+    <select id="queryCategoryLevelID2" resultType="AppCategory">
+    
+   	 SELECT `id`,`categoryName` FROM `app_category` WHERE   `parentId` =#{pid}
+    
+    </select>
+    
+    <select id="statusName" resultType="String">
+    
+    	SELECT `valueName` FROM `data_dictionary` WHERE data_dictionary.`typeName`='APP状态' AND #{status}= data_dictionary.`valueId` 
+    </select>
+    
+    <select id="versionNoName" resultType="String">
+    
+    	SELECT versionNo FROM `app_version` WHERE  #{id} = `appId`  ORDER BY  `modifyDate` DESC  LIMIT 1 
+    
+    </select>
+    
+    <select id="categoryLevel1" resultType="String">
+    
+    		SELECT `categoryName` FROM `app_category` WHERE #{categoryLevel1}= app_category.`id`
+    
+    </select>
+    
+    <select id="count" resultType="int">
+    
+    		SELECT COUNT(*) FROM `app_info` WHERE `devId` = #{id}
+    
+    </select>
+    
+    
+   <select id="appversion" resultMap="AppName">
+   
+   	 	SELECT * FROM `app_version`,`app_info` WHERE `appId` =#{appId} AND app_info.`id` =#{appId}  ORDER BY app_version.`modifyDate` DESC LIMIT 5 
+   
+   </select>
+   
+   <resultMap type="AppVersion" id="AppName">
+   
+   		   		<result property="appName" column="softwareName" />
+   
+   
+   </resultMap>
+   
+    
+    <select id="querySoftwareName"  resultMap="appInfomap"   >
+    
+  SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台'  AND app_info.`status`=1  
+    	
+			<if test="softwareName != null and softwareName != ''">
+				and softwareName like CONCAT ('%',#{softwareName},'%')
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="categoryLevel1 != null">
+				and categoryLevel1 = #{categoryLevel1}
+			</if>
+			<if test="categoryLevel2 != null">
+				and categoryLevel2 = #{categoryLevel2}
+			</if>
+			<if test="categoryLevel3 != null">
+				and categoryLevel3 = #{categoryLevel3}
+			</if>
+			<if test="flatformId != null">
+				and flatformId = #{flatformId}
+			</if>
+			<if test="devId != null">
+				and devId = #{devId}
+			</if>
+    	
+    		    LIMIT #{currentPageNo},5;	
+    
+    
+    </select>
+    
+      
+    <select id="myCount"  resultType="int"  >
+    
+ SELECT COUNT(*) FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' 
+    	
+			<if test="softwareName != null and softwareName != ''">
+				and softwareName like CONCAT ('%',#{softwareName},'%')
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="categoryLevel1 != null">
+				and categoryLevel1 = #{categoryLevel1}
+			</if>
+			<if test="categoryLevel2 != null">
+				and categoryLevel2 = #{categoryLevel2}
+			</if>
+			<if test="categoryLevel3 != null">
+				and categoryLevel3 = #{categoryLevel3}
+			</if>
+			<if test="flatformId != null">
+				and flatformId = #{flatformId}
+			</if>
+			<if test="devId != null">
+				and devId = #{devId}
+			</if>
+    	
+    
+    </select>
+    
+    <delete id="delapp" parameterType="string">
+    
+    		DELETE FROM `app_info` WHERE `id` = #{Id}
+    
+    </delete>
+    
+    <delete id="deleteAppinfodb"  parameterType="string">
+    
+    	DELETE  FROM `appinfodb`.`app_version` WHERE `appId` =#{appId}
+    
+    </delete>
+    
+    <insert id="addAppVersion" parameterType="AppInfo">
+
+	INSERT INTO `appinfodb`.`app_version` (
+	`appId`,
+	`versionNo`,
+	`versionInfo`,
+	`publishStatus`,
+	`versionSize`,
+	`createdBy`,
+	`creationDate`,
+	`apkLocPath`,
+	`apkFileName`,
+	`modifyBy`,
+	`modifyDate`,
+	 downloadLink
+	)
+	VALUES(
+	#{appId},
+	#{versionNo},
+	#{versionInfo},
+	#{publishStatus},
+	#{versionSize},
+	#{createdBy},
+	#{creationDate},
+	#{apkLocPath},
+	#{apkFileName},
+	#{modifyBy},
+	#{modifyDate},
+	#{downloadLink}
+	) ;
+    
+    
+    
+    </insert>
+    
+    
+    <select id="SelectappVersionID" resultType="AppVersion">
+    
+    SELECT * FROM `app_version` WHERE `appId` = #{appId} AND `versionNo` =#{versionNo}  ORDER BY app_version.`modifyDate` DESC LIMIT 1
+    </select>
+    
+    <update id="UpdateVersionId">
+    
+    	UPDATE `appinfodb`.`app_info` SET `versionId` = #{versionId},`supportROM`=#{supportROM} WHERE `id` = #{id}
+    
+    </update>
+    
+    <select id="datadictionarylist" resultType="DataDictionary">
+    
+    	SELECT * FROM `data_dictionary` WHERE  `typeName` ='所属平台'
+    
+    </select>
+    
+    <insert id="InsertAppInfo" parameterType="AppInfo">
+    
+    INSERT INTO `appinfodb`.`app_info` (
+  `softwareName`,
+  `APKName`,
+  `supportROM`,
+  `interfaceLanguage`,
+  `softwareSize`,
+  `updateDate`,
+  `devId`,
+  `appInfo`,
+  `status`,
+  `onSaleDate`,
+  `offSaleDate`,
+  `flatformId`,
+  `categoryLevel3`,
+  `downloads`,
+  `createdBy`,
+  `creationDate`,
+  `modifyBy`,
+  `modifyDate`,
+  `categoryLevel1`,
+  `categoryLevel2`,
+  `logoLocPath`,
+   logoPicPath,
+   versionId
+) 
+VALUES
+  (
+    #{softwareName},
+    #{APKName},
+    #{supportROM},
+    #{interfaceLanguage},
+    #{softwareSize},
+    #{updateDate},
+    #{devId},
+    #{appInfo},
+    #{status},
+    #{onSaleDate},
+    #{offSaleDate},
+    #{flatformId},
+    #{categoryLevel3},
+    #{downloads},
+    #{createdBy},
+    #{creationDate},
+    #{modifyBy},
+    #{modifyDate},
+    #{categoryLevel1},
+    #{categoryLevel2},
+    #{logoLocPath},
+    #{logoPicPath},
+    #{versionId}
+  ) ;
+    
+    </insert>
+    
+    <select id="SelectVersion" parameterType="Integer" resultType="AppVersion">
+    
+    		    SELECT * FROM `app_version` WHERE `appId` =#{id}   ORDER BY app_version.`modifyDate` DESC LIMIT 1
+    
+    </select>
+    
+    <update id="updateAppversion" parameterType="AppVersion">
+
+	UPDATE
+	`appinfodb`.`app_version`
+	SET
+	`versionNo` = #{versionNo},
+	`versionInfo` = #{versionInfo},
+	`publishStatus` = #{publishStatus},
+	`versionSize` = #{versionSize},
+	`modifyBy` = #{modifyBy},
+	`modifyDate` = #{modifyDate},
+	`apkLocPath` = #{apkLocPath},
+	`apkFileName` = #{apkFileName},downloadLink=#{downloadLink}
+	WHERE `id` = #{id} ;
+    
+    </update>
+    
+    <select id="appInfoID" parameterType="AppInfo" resultType="int">
+    
+  	  SELECT id FROM `app_info` WHERE `softwareName` =#{softwareName} AND `APKName` =#{APKName} AND `supportROM` =#{supportROM}
+    
+    </select>
+    
+    <update id="updateAppId">
+
+	UPDATE
+	`appinfodb`.`app_version`
+	SET
+	`appId` = #{appId}
+	WHERE `id` = #{id} ;
+    
+    </update>
+    
+    <select id="selectAppInfoList" parameterType="int" resultType="AppInfo">
+    
+    	SELECT * FROM `app_info` WHERE id=#{id}
+    
+    </select>
+    
+    <update id="updateAppInfodb">
+
+	update app_info
+		<trim prefix="set" suffixOverrides="," suffix="where id=#{id}">
+			<if test="softwareName != null">softwareName=#{softwareName},</if>
+			<!-- <if test="APKName != null">APKName=#{APKName},</if> -->
+			<if test="supportROM != null">supportROM=#{supportROM},</if>
+			<if test="interfaceLanguage != null">interfaceLanguage=#{interfaceLanguage},</if>
+			<if test="updateDate != null">updateDate=#{updateDate},</if>
+			<if test="softwareSize != null">softwareSize=#{softwareSize},</if>
+			<if test="appInfo != null">appInfo=#{appInfo},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="onSaleDate != null">onSaleDate=#{onSaleDate},</if>
+			<if test="offSaleDate != null">offSaleDate=#{offSaleDate},</if>
+			<if test="categoryLevel1 != null">categoryLevel1=#{categoryLevel1},</if>
+			<if test="categoryLevel2 != null">categoryLevel2=#{categoryLevel2},</if>
+			<if test="categoryLevel3 != null">categoryLevel3=#{categoryLevel3},</if>
+			<if test="downloads != null">downloads=#{downloads},</if>
+			<if test="flatformId != null">flatformId=#{flatformId},</if>
+			<if test="logoPicPath != null">logoPicPath=#{logoPicPath},</if>
+			<if test="logoLocPath != null">logoLocPath=#{logoLocPath},</if>
+			<if test="modifyBy != null">modifyBy=#{modifyBy},</if>
+			<if test="modifyDate != null">modifyDate=#{modifyDate},</if>
+		</trim>
+
+    </update>
+    
+    <select id="SelectAppInfo"  parameterType="int" resultMap="appInfomap">
+    
+     SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台'  AND app_info.`id`=#{id}
+    
+    </select>
+    
+    <update id="OnTheShelf" parameterType="AppInfo">
+
+	UPDATE
+	`appinfodb`.`app_info`
+	SET
+	`status` = #{status},
+	`onSaleDate` = #{onSaleDate}
+	WHERE `id` = #{id} ;
+    
+    </update>
+
+	 <update id="Dismount" parameterType="AppInfo">
+
+	UPDATE
+	`appinfodb`.`app_info`
+	SET
+	`status` = #{status},
+	`offSaleDate` = #{offSaleDate}
+	WHERE `id` = #{id} ;
+    
+    </update>
+    
+    <update id="delfile">
+
+	UPDATE
+	`appinfodb`.`app_info`
+	SET
+	`logoPicPath` = #{logoPicPath}
+
+	WHERE `id` = #{id} ;
+    	
+    
+    </update>
+    
+    <update id="delFile">
+
+	UPDATE
+	`appinfodb`.`app_version`
+	SET
+	`downloadLink` = #{downloadLink}
+	WHERE `id` = #{id};
+    
+    </update>
+
+    
+
+</mapper>

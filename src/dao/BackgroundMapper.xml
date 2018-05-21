@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.4//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.BackgroundMapper">
+    
+ 	<select id="backendLogin" resultType="BackendUser">
+ 	
+ 			SELECT * FROM `backend_user` WHERE `userCode` =#{userName} AND `userPassword` =#{userPassword}
+ 	
+ 	</select>
+    
+     <select id="appCategoryList" resultType="AppCategory">
+    		
+    			SELECT *  FROM `app_category` WHERE `parentId`=#{parentId}
+   	 </select>
+   	 
+   	 <select id="selectTypeName" resultType="DataDictionary" >
+   	 
+   	 	SELECT  * FROM `data_dictionary` WHERE `typeName`=#{typeName}
+   	 
+   	 </select>
+   	 
+   	 <select id="appInfoList" resultMap="appInfomap">
+    
+   		SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' AND `status`=1   LIMIT #{currentPageNo},5	
+    
+    </select>
+    <resultMap type="AppInfo" id="appInfomap">
+    
+    		<result property="flatformName" column="valueName" />
+    
+    </resultMap>
+    
+    
+    <select id="statusName" resultType="String">
+    
+    	SELECT `valueName` FROM `data_dictionary` WHERE data_dictionary.`typeName`='APP状态' AND #{status}= data_dictionary.`valueId` 
+    </select>
+   	 
+   	<select id="versionNoName" resultType="String">
+    
+    	SELECT versionNo FROM `app_version` WHERE  #{id} = `appId`  ORDER BY  `modifyDate` DESC  LIMIT 1 
+    
+    </select>
+    
+     <select id="categoryLevel1" resultType="String">
+    
+    		SELECT `categoryName` FROM `app_category` WHERE #{categoryLevel1}= app_category.`id`
+    
+    </select>
+    
+    <select id="count" resultType="int">
+    
+    	SELECT count(*) FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' AND `status`=1 
+    
+    </select>
+    
+        <select id="querySoftwareName"  resultMap="appInfomap"   >
+    
+ SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' 
+    	
+			<if test="softwareName != null and softwareName != ''">
+				and softwareName like CONCAT ('%',#{softwareName},'%')
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="categoryLevel1 != null">
+				and categoryLevel1 = #{categoryLevel1}
+			</if>
+			<if test="categoryLevel2 != null">
+				and categoryLevel2 = #{categoryLevel2}
+			</if>
+			<if test="categoryLevel3 != null">
+				and categoryLevel3 = #{categoryLevel3}
+			</if>
+			<if test="flatformId != null">
+				and flatformId = #{flatformId}
+			</if>
+	
+    	
+    		    LIMIT #{currentPageNo},5;	
+
+    </select>
+    
+     <select id="myCount"  resultType="int"  >
+    
+ SELECT COUNT(*)  FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' 
+    	
+			<if test="softwareName != null and softwareName != ''">
+				and softwareName like CONCAT ('%',#{softwareName},'%')
+			</if>
+			<if test="status != null">
+				and status = #{status}
+			</if>
+			<if test="categoryLevel1 != null">
+				and categoryLevel1 = #{categoryLevel1}
+			</if>
+			<if test="categoryLevel2 != null">
+				and categoryLevel2 = #{categoryLevel2}
+			</if>
+			<if test="categoryLevel3 != null">
+				and categoryLevel3 = #{categoryLevel3}
+			</if>
+			<if test="flatformId != null">
+				and flatformId = #{flatformId}
+			</if>
+
+    </select>
+    
+    <select id="selectAid" resultType="AppInfo">
+    
+    		SELECT * FROM `app_info`,`data_dictionary` WHERE app_info.`flatformId` = data_dictionary.`valueId` AND data_dictionary.`typeName`='所属平台' AND app_info.id=#{aid}
+    
+    </select>
+    
+    <select id="selectVid" resultType="AppVersion">
+    
+    	SELECT * FROM `app_version` WHERE `id` =#{vid}
+    
+    </select>
+    
+    <update id="updateStatus">
+
+	UPDATE
+	`appinfodb`.`app_info`
+	SET
+	`status` = #{status}
+	WHERE `id` = #{id};
+    
+    </update>
+    
+    <update id="updatePublishStatus">
+
+	UPDATE
+	`appinfodb`.`app_version`
+	SET
+	`publishStatus` = #{publishStatus}
+	WHERE `id` = #{id};
+    
+    </update>
+    
+
+</mapper>
